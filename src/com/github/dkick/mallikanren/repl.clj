@@ -1,7 +1,7 @@
-(ns com.github.dkick.mallikanren.repl-test
-  (:require  [clojure.core.logic :as l]
-             [clojure.test :as t]
-             [com.github.dkick.mallikanren.core :as sut]))
+(ns com.github.dkick.mallikanren.repl
+  (:require
+   [clojure.core.logic :as l]
+   [com.github.dkick.mallikanren.core :as sut]))
 
 (comment
   (let [q nil]
