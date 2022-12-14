@@ -25,8 +25,6 @@
    [:ref ::person]])
 
 (comment
-  (m/form Person)
-
   (mg/generate Person)
   ;; => {:name {:first "4S2Zq", :middle nil, :last "iMq9"},
   ;;     :parents nil,
