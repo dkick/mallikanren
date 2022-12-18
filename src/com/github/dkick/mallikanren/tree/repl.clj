@@ -1,6 +1,5 @@
-(ns com.github.dkick.mallikanren.repl
+(ns com.github.dkick.mallikanren.tree.repl
   (:require
-   [malli.core :as m]
    [malli.generator :as mg]))
 
 (def Name
@@ -16,7 +15,6 @@
      [:map
       [:father [:ref ::person]]
       [:mother [:ref ::person]]]
-
      ::person
      [:map
       [:name Name]
