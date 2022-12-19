@@ -1,18 +1,35 @@
 (ns com.github.dkick.mallikanren.flat.repl
   (:require
-   [malli.generator :as mg]))
+   [com.github.dkick.mallikanren.flat.spock :as spock]
+   [encaje.core :refer [fx]]
+   [malli.core :as m]
+   [malli.json-schema :as mj]))
 
 (def Name
   [:map
-   [:id :uuid]
    [:first :string]
    [:middle [:maybe :string]]
    [:last :string]])
 
+(def Person
+  [:map
+   [:id :uuid]
+   [:name Name]])
+
+(def Parents
+  [:map
+   [:child :uuid]
+   [:father :uuid]
+   [:mother :uuid]])
+
+(def Children
+  [:map
+   [:parent :uuid]
+   [:child :uuid]])
+
 (comment
-  (mg/generate Name)
-  ;; => {:id #uuid "b372e59e-dab9-425e-8e2c-bcfc41f43ac3",
-  ;;     :first "8lYtN3VChaHRpE",
-  ;;     :middle "T11yXna3vuuE3SuV",
-  ;;     :last "PXk7R65i67N49h5sVzP9Bk6t16"}
+  (spock/-transform Name)
+  (spock/-transform Person)
+  (spock/-transform Parents)
+  (spock/-transform Children)
   :comment)

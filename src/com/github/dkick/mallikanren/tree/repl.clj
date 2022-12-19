@@ -11,15 +11,14 @@
 (def Person
   [:schema
    {:registry
-    {::parents
-     [:map
-      [:father [:ref ::person]]
-      [:mother [:ref ::person]]]
-     ::person
-     [:map
-      [:name Name]
-      [:parents [:maybe [:ref ::parents]]]
-      [:children [:vector [:ref ::person]]]]}}
+    {::parents [:map
+                [:father [:ref ::person]]
+                [:mother [:ref ::person]]]
+     ::person  [:map
+                [:id :uuid]
+                [:name Name]
+                [:parents [:maybe [:ref ::parents]]]
+                [:children [:vector [:ref ::person]]]]}}
    [:ref ::person]])
 
 (comment
