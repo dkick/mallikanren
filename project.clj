@@ -9,4 +9,4 @@
                  [org.clojure/clojure "1.11.1"]
                  [org.clojure/core.logic "1.0.1"]]
   :plugins [[com.github.clj-kondo/lein-clj-kondo "0.2.1"]]
-  :repl-options {:init-ns com.github.dkick.mallikanren.core})
+  :repl-options {:init-ns com.github.dkick.mallikanren.repl})
