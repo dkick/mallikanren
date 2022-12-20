@@ -29,7 +29,11 @@
 
 (comment
   (spock/-transform Name)
+  ;; => [:map [:first :string] [:middle [:maybe :string]] [:last :string]]
   (spock/-transform Person)
+  ;; => [:map [:id :uuid] [:name [:map [:first :string] [:middle [:maybe :string]] [:last :string]]]]
   (spock/-transform Parents)
+  ;; => [:map [:child :uuid] [:father :uuid] [:mother :uuid]]
   (spock/-transform Children)
+  ;; => [:map [:parent :uuid] [:child :uuid]]
   :comment)

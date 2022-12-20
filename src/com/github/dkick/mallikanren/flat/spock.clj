@@ -1,6 +1,7 @@
 (ns com.github.dkick.mallikanren.flat.spock
   (:refer-clojure :rename {name clj-name})
   (:require
+   [encaje.core :refer [fx]]
    [malli.core :as m]))
 
 ;;; Laregly based on malli.json-schema; sometimes copied without
@@ -16,11 +17,12 @@
   :default ::default)
 
 (defmethod accept ::default [name schema children options]
-  (doto schema
-    (println {:name name
-              :schema schema
-              :children children
-              :options options})))
+  (do (fx println
+        {:name name
+         :schema schema
+         :children children
+         :options options})
+      schema))
 
 (defn -spock-schema-walker [schema _path children options]
   (let [p (merge (m/type-properties schema) (m/properties schema))]
