@@ -29,9 +29,13 @@
   (let [name!? (spock/transform Name)
         q nil]
     (l/run 3 [q]
-      (l/== q [[:first "Damien"] [:middle "Robert"] [:last "Kick"]])
+      (l/conde
+       [(l/== q [[:first "Damien"] [:middle "Robert"] [:last "Kick"]])]
+       [(l/== q [[:first "Damien"] [:middle nil] [:last "Kick"]])]
+       [(l/== q [[:nickname "D'amy"]])])
       (name!? q)))
-  ;; => ([[:first "Damien"] [:middle "Robert"] [:last "Kick"]])
+  ;; => ([[:first "Damien"] [:middle "Robert"] [:last "Kick"]]
+  ;;     [[:first "Damien"] [:middle nil] [:last "Kick"]])
   (spock/transform Person)
   (spock/-transform Parents)
   (spock/-transform Children)
