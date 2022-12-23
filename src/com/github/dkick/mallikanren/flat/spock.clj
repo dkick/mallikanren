@@ -28,41 +28,26 @@
 (defmulti accept (fn [name _schema _children _options] name)
   :default ::default)
 
-(defmethod accept ::default [name schema children options]
-  (doto (fn col-schema!?
-          ([x] (col!? schema x))
-          ([x x'] (col!? schema x x')))
-    (#(println {:name name
-                :schema schema
-                :children children
-                :options options
-                :=> %}))))
+(defmethod accept ::default [_name schema _children _options]
+  (fn col-schema!?
+    ([x] (col!? schema x))
+    ([x x'] (col!? schema x x'))))
 
-(defmethod accept ::m/val [name schema children options]
-  (doto (first children)
-    (#(println {:name name
-                :schema schema
-                :children children
-                :options options
-                :=> %}))))
+(defmethod accept ::m/val [_name _schema children _options]
+  (first children))
 
-(defmethod accept :map [name schema children options]
-  (doto (let [kvs (->> children (map (fn [[k _p ?schema]] [k ?schema])))
-              ks (->> kvs (map (fn [[k _?schema]] k)))
-              ?schemas (->> kvs (map (fn [[_k ?schema]] ?schema)))]
-          (fn row-schema!?
-            ([m]
-             (let [x-lvars (map #(->> % symbol l/lvar) ks)]
-               (l/all
-                (l/== m (->> (map vector ks x-lvars) (into [])))
-                (l/and* (map (fn [x-lvar ?schema] (?schema x-lvar))
-                             x-lvars ?schemas)))))
-            ([m m'] (vector m m'))))
-    (#(println {:name name
-                :schema schema
-                :children children
-                :options options
-                :=> %}))))
+(defmethod accept :map [_name _schema children _options]
+  (let [kvs (->> children (map (fn [[k _p ?schema]] [k ?schema])))
+        ks (->> kvs (map (fn [[k _?schema]] k)))
+        ?schemas (->> kvs (map (fn [[_k ?schema]] ?schema)))]
+    (fn row-schema!?
+      ([m]
+       (let [x-lvars (map #(->> % symbol l/lvar) ks)]
+         (l/all
+          (l/== m (->> (map vector ks x-lvars) (into [])))
+          (l/and* (map (fn [x-lvar ?schema] (?schema x-lvar))
+                       x-lvars ?schemas)))))
+      ([m m'] (vector m m')))))
 
 (defn -spock-schema-walker [schema _path children options]
   (let [p (merge (m/type-properties schema) (m/properties schema))]
