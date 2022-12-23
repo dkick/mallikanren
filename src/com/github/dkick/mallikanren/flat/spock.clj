@@ -6,15 +6,6 @@
    [malli.core :as m]
    [malli.generator :as mg]))
 
-;;; Laregly based on malli.json-schema; sometimes copied without
-;;; really understanding, sometimes copied with maybe understanding,
-;;; sometimes copied with hopefully understanding. It is up to you to
-;;; discover which happened, when, and where <laughter type="evil"/>
-
-(defprotocol SpockSchema
-  (-accept [this children options]
-    "transforms schema to Spock Schema"))
-
 (defn col!?
   ([?x x]
    (l/pred x #(m/validate ?x %)))
@@ -25,25 +16,53 @@
     [(l/nilo x)
      (l/== x' (mg/generate ?x))])))
 
+;;; Laregly based on malli.json-schema; sometimes copied without
+;;; really understanding, sometimes copied with maybe understanding,
+;;; sometimes copied with hopefully understanding. It is up to you to
+;;; discover which happened, when, and where <laughter type="evil"/>
+
+(defprotocol SpockSchema
+  (-accept [this children options]
+    "transforms schema to Spock Schema"))
+
 (defmulti accept (fn [name _schema _children _options] name)
   :default ::default)
 
 (defmethod accept ::default [name schema children options]
-  (do (fx println
-        {:name name
-         :schema schema
-         :children children
-         :options options})
-      #_`(col!? ~@(rest schema) ~(first schema))
-      `(col!? ~schema)))
+  (doto (fn col-schema!?
+          ([x] (col!? schema x))
+          ([x x'] (col!? schema x x')))
+    (#(println {:name name
+                :schema schema
+                :children children
+                :options options
+                :=> %}))))
 
 (defmethod accept ::m/val [name schema children options]
-  (do (fx println
-        {:name name
-         :schema schema
-         :children children
-         :options options})
-      (first children)))
+  (doto (first children)
+    (#(println {:name name
+                :schema schema
+                :children children
+                :options options
+                :=> %}))))
+
+(defmethod accept :map [name schema children options]
+  (doto (let [kvs (->> children (map (fn [[k _p ?schema]] [k ?schema])))
+              ks (->> kvs (map (fn [[k _?schema]] k)))
+              ?schemas (->> kvs (map (fn [[_k ?schema]] ?schema)))]
+          (fn row-schema!?
+            ([m]
+             (let [x-lvars (map #(->> % symbol l/lvar) ks)]
+               (l/all
+                (l/== m (->> (map vector ks x-lvars) (into [])))
+                (l/and* (map (fn [x-lvar ?schema] (?schema x-lvar))
+                             x-lvars ?schemas)))))
+            ([m m'] (vector m m'))))
+    (#(println {:name name
+                :schema schema
+                :children children
+                :options options
+                :=> %}))))
 
 (defn -spock-schema-walker [schema _path children options]
   (let [p (merge (m/type-properties schema) (m/properties schema))]

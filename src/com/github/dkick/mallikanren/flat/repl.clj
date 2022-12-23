@@ -1,9 +1,7 @@
 (ns com.github.dkick.mallikanren.flat.repl
   (:require
-   [com.github.dkick.mallikanren.flat.spock :as spock]
-   [encaje.core :refer [fx]]
-   [malli.core :as m]
-   [malli.json-schema :as mj]))
+   [clojure.core.logic :as l]
+   [com.github.dkick.mallikanren.flat.spock :as spock]))
 
 (def Name
   [:map
@@ -28,12 +26,13 @@
    [:child :uuid]])
 
 (comment
-  (spock/transform Name)
-  ;; => [:map [:first :string] [:middle [:maybe :string]] [:last :string]]
+  (let [name!? (spock/transform Name)
+        q nil]
+    (l/run 3 [q]
+      (l/== q [[:first "Damien"] [:middle "Robert"] [:last "Kick"]])
+      (name!? q)))
+  ;; => ([[:first "Damien"] [:middle "Robert"] [:last "Kick"]])
   (spock/transform Person)
-  ;; => [:map [:id :uuid] [:name [:map [:first :string] [:middle [:maybe :string]] [:last :string]]]]
   (spock/-transform Parents)
-  ;; => [:map [:child :uuid] [:father :uuid] [:mother :uuid]]
   (spock/-transform Children)
-  ;; => [:map [:parent :uuid] [:child :uuid]]
   :comment)
