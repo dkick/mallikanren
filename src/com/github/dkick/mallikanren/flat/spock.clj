@@ -2,7 +2,6 @@
   (:refer-clojure :rename {name clj-name})
   (:require
    [clojure.core.logic :as l]
-   [encaje.core :refer [fx]]
    [malli.core :as m]
    [malli.generator :as mg]))
 
@@ -18,17 +17,16 @@
 (defmulti accept (fn [name _schema _children _options] name)
   :default ::default)
 
-(defn col!?
+(defn cell!?
   ([?x x]
    (l/conde
     [(l/pred ?x fn?)
-     (fx l/project [?x]
-         (?x x))]
+     (l/pred x ?x)]
     [(l/pred ?x m/schema?)
      (l/pred x #(m/validate ?x %))]))
   ([?x x x']
    (l/conde
-    [(col!? ?x x)
+    [(cell!? ?x x)
      (l/== x' x)]
     [(l/nilo x)
      (l/== x' (mg/generate ?x))])))
@@ -39,9 +37,9 @@
    [(x!? x)]))
 
 (defmethod accept ::default [_name schema _children _options]
-  (fn col-schema!?
-    ([x] (col!? schema x))
-    ([x x'] (col!? schema x x'))))
+  (fn cell-schema!?
+    ([x] (cell!? schema x))
+    ([x x'] (cell!? schema x x'))))
 
 (defmethod accept ::m/val [_name _schema children _options]
   (first children))
@@ -50,22 +48,22 @@
   (apply (first args) (rest args)))
 
 (defmethod accept :map [_name _schema children _options]
-  (let [kvs (->> children (map (fn [[k _p schema!?]] [k schema!?])))
-        ks       (->> kvs (map (fn [[k _]] k)))
-        schemas  (->> kvs (map (fn [[_ v]] v)))
-        ->lvars  (fn [] (->> ks (map #(->> % symbol l/lvar))))
-        ->ks-row (fn [lvars] (->> (map vector ks lvars) (into [])))]
+  (let [kvs (->> children (map (fn [[k _ v]] [k v])))
+        ks      (->> kvs (map (fn [[k _]] k)))
+        schemas (->> kvs (map (fn [[_ v]] v)))
+        ->lvars (fn [] (->> ks (map #(->> % symbol l/lvar))))
+        ->row   (fn [lvars] (->> (map vector ks lvars) (into [])))]
     (fn row-schema!?
       ([m]
        (let [lvars (->lvars)]
          (l/all
-          (l/== m (->ks-row lvars))
+          (l/== m (->row lvars))
           (l/and* (map var!? schemas lvars)))))
       ([m m']
-       (let [m-vals (map #(% m) ks)
+       (let [m-vals (->> ks (map #(% m)))
              lvars (->lvars)]
          (l/all
-          (l/== m' (->ks-row lvars))
+          (l/== m' (->row lvars))
           (l/and* (map -apply* schemas m-vals lvars))))))))
 
 (defn -spock-schema-walker [schema _path children options]
