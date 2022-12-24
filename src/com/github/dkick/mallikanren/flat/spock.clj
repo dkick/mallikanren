@@ -5,16 +5,6 @@
    [malli.core :as m]
    [malli.generator :as mg]))
 
-(defn col!?
-  ([?x x]
-   (l/pred x #(m/validate ?x %)))
-  ([?x x x']
-   (l/conde
-    [(col!? ?x x)
-     (l/== x' x)]
-    [(l/nilo x)
-     (l/== x' (mg/generate ?x))])))
-
 ;;; Laregly based on malli.json-schema; sometimes copied without
 ;;; really understanding, sometimes copied with maybe understanding,
 ;;; sometimes copied with hopefully understanding. It is up to you to
@@ -26,6 +16,16 @@
 
 (defmulti accept (fn [name _schema _children _options] name)
   :default ::default)
+
+(defn col!?
+  ([?x x]
+   (l/pred x #(m/validate ?x %)))
+  ([?x x x']
+   (l/conde
+    [(col!? ?x x)
+     (l/== x' x)]
+    [(l/nilo x)
+     (l/== x' (mg/generate ?x))])))
 
 (defmethod accept ::default [_name schema _children _options]
   (fn col-schema!?
@@ -49,7 +49,9 @@
        (let [lvars (->lvars)]
          (l/all
           (l/== m (->ks-row lvars))
-          (l/and* (map -apply* schemas lvars)))))
+          (l/conde
+           [(l/and* (map #(l/lvaro %) lvars))]
+           [(l/and* (map -apply* schemas lvars))]))))
       ([m m']
        (let [m-vals (map #(% m) ks)
              lvars (->lvars)]
