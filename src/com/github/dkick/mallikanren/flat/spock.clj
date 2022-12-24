@@ -58,11 +58,7 @@
        (let [lvars (->lvars)]
          (l/all
           (l/== m (->ks-row lvars))
-          (l/and* (map (fn [x!? x]
-                         (l/conde
-                          [(l/lvaro x)]
-                          [(x!? x)]))
-                       schemas lvars)))))
+          (l/and* (map var!? schemas lvars)))))
       ([m m']
        (let [m-vals (map #(% m) ks)
              lvars (->lvars)]

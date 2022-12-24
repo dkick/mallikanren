@@ -73,6 +73,7 @@
                   (map #(% q))))))
   ;; => ([[:first _0] [:middle _1] [:last _2]]
   ;;     [[:id _0] [:name _1]]
+  ;;     [[:parent _0] [:child _1]]
   ;;     [[:child _0] [:father _1] [:mother _2]]
-  ;;     [[:parent _0] [:child _1]])
+  ;;     [[:id _0] [:name [[:first _1] [:middle _2] [:last _3]]]])
   :comment)
