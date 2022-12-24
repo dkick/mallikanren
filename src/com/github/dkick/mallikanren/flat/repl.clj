@@ -37,7 +37,9 @@
   (let [q nil]
     (l/run 3 [q]
       (name!? q)
-      (l/member1o [:first "Damien"] q)
+      (l/conde
+       [(l/member1o [:first "Damien"] q)]
+       [(l/member1o [:first 13] q)])
       (name!? q)))
   ;; => ([[:first "Damien"] [:middle _0] [:last _1]])
   (let [q nil]
@@ -57,16 +59,14 @@
   (let [q nil]
     (l/run 10 [q]
       (person!? nil q)))
-  ;; => ([[:id #uuid "d8508462-6ab2-4675-8435-837e88cd4dce"]
+  ;; => ([[:id #uuid "d8834f42-3a97-4335-8526-1d68b3c79d10"]
   ;;      [:name
-  ;;       [[:first "qib5Vta00hj70L1mu0TBXJ5zz"]
-  ;;        [:middle "K806Bi7qt2tIKX77Y4Ij4r014nsP"]
-  ;;        [:last "J5tS8lOgzd"]]]]
-  ;;     [[:id #uuid "d8508462-6ab2-4675-8435-837e88cd4dce"]
+  ;;       [[:first "1Sl70R9af3BD"] [:middle ""] [:last "7Z6EtmWV908e"]]]]
+  ;;     [[:id #uuid "d8834f42-3a97-4335-8526-1d68b3c79d10"]
   ;;      [:name
-  ;;       [[:first "qib5Vta00hj70L1mu0TBXJ5zz"]
+  ;;       [[:first "1Sl70R9af3BD"]
   ;;        [:middle nil]
-  ;;        [:last "xhgt13y11Y4I"]]]])
+  ;;        [:last "v9k6M38V8L89vW71R0TGl081o"]]]])
   (let [q nil]
     (l/run 10 [q]
       (l/or* (->> [name!? person!? parents!? children!?]

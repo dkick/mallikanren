@@ -2,6 +2,7 @@
   (:refer-clojure :rename {name clj-name})
   (:require
    [clojure.core.logic :as l]
+   [encaje.core :refer [fx]]
    [malli.core :as m]
    [malli.generator :as mg]))
 
@@ -21,7 +22,8 @@
   ([?x x]
    (l/conde
     [(l/pred ?x fn?)
-     (fn? x)]
+     (fx l/project [?x]
+         (?x x))]
     [(l/pred ?x m/schema?)
      (l/pred x #(m/validate ?x %))]))
   ([?x x x']
@@ -49,10 +51,10 @@
 
 (defmethod accept :map [_name _schema children _options]
   (let [kvs (->> children (map (fn [[k _p schema!?]] [k schema!?])))
-        ks (->> kvs (map (fn [[k _?schema]] k)))
-        schemas (->> kvs (map (fn [[_k schema!?]] schema!?)))
-        ->lvars (fn [] (->> ks (map #(->> % symbol l/lvar))))
-        ->ks-row (fn [lvars] (->> lvars (map vector ks) (into [])))]
+        ks       (->> kvs (map (fn [[k _]] k)))
+        schemas  (->> kvs (map (fn [[_ v]] v)))
+        ->lvars  (fn [] (->> ks (map #(->> % symbol l/lvar))))
+        ->ks-row (fn [lvars] (->> (map vector ks lvars) (into [])))]
     (fn row-schema!?
       ([m]
        (let [lvars (->lvars)]
