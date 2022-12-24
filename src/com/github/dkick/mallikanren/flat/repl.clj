@@ -37,6 +37,6 @@
   ;; => ([[:first "Damien"] [:middle "Robert"] [:last "Kick"]]
   ;;     [[:first "Damien"] [:middle nil] [:last "Kick"]])
   (spock/transform Person)
-  (spock/-transform Parents)
-  (spock/-transform Children)
+  (spock/transform Parents)
+  (spock/transform Children)
   :comment)

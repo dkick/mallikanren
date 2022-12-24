@@ -2,7 +2,6 @@
   (:refer-clojure :rename {name clj-name})
   (:require
    [clojure.core.logic :as l]
-   [encaje.core :refer [fx]]
    [malli.core :as m]
    [malli.generator :as mg]))
 
@@ -52,8 +51,8 @@
           (l/== m (->ks-row lvars))
           (l/and* (map -apply* schemas lvars)))))
       ([m m']
-       (let [lvars (->lvars)
-             m-vals (map #(% m) ks)]
+       (let [m-vals (map #(% m) ks)
+             lvars (->lvars)]
          (l/all
           (l/== m' (->ks-row lvars))
           (l/and* (map -apply* schemas m-vals lvars))))))))
@@ -75,9 +74,8 @@
    (transform ?schema nil))
   ([?schema options]
    (let [definitions (atom {})
-         options (fx merge options
-                     {::m/walk-entry-vals true
-                      ::definitions definitions
-                      ::transfrom -transform})]
+         options (merge options {::m/walk-entry-vals true
+                                 ::definitions definitions
+                                 ::transfrom -transform})]
      (cond-> (-transform ?schema options)
        (seq @definitions) (assoc :definitions @definitions)))))
