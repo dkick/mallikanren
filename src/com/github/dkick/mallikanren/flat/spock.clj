@@ -36,18 +36,27 @@
 (defmethod accept ::m/val [_name _schema children _options]
   (first children))
 
+(defn -apply* [& args]
+  (apply (first args) (rest args)))
+
 (defmethod accept :map [_name _schema children _options]
-  (let [kvs (->> children (map (fn [[k _p ?schema]] [k ?schema])))
+  (let [kvs (->> children (map (fn [[k _p schema!?]] [k schema!?])))
         ks (->> kvs (map (fn [[k _?schema]] k)))
-        ?schemas (->> kvs (map (fn [[_k ?schema]] ?schema)))]
+        schemas (->> kvs (map (fn [[_k schema!?]] schema!?)))
+        ->lvars (fn [] (->> ks (map #(->> % symbol l/lvar))))
+        ->ks-row (fn [lvars] (->> lvars (map vector ks) (into [])))]
     (fn row-schema!?
       ([m]
-       (let [x-lvars (map #(->> % symbol l/lvar) ks)]
+       (let [lvars (->lvars)]
          (l/all
-          (l/== m (->> (map vector ks x-lvars) (into [])))
-          (l/and* (map (fn [x-lvar ?schema] (?schema x-lvar))
-                       x-lvars ?schemas)))))
-      ([m m'] (vector m m')))))
+          (l/== m (->ks-row lvars))
+          (l/and* (map -apply* schemas lvars)))))
+      ([m m']
+       (let [lvars (->lvars)
+             m-vals (map #(% m) ks)]
+         (l/all
+          (l/== m' (->ks-row lvars))
+          (l/and* (map -apply* schemas m-vals lvars))))))))
 
 (defn -spock-schema-walker [schema _path children options]
   (let [p (merge (m/type-properties schema) (m/properties schema))]
