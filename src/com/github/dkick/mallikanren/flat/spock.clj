@@ -19,13 +19,22 @@
 
 (defn col!?
   ([?x x]
-   (l/pred x #(m/validate ?x %)))
+   (l/conde
+    [(l/pred ?x fn?)
+     (fn? x)]
+    [(l/pred ?x m/schema?)
+     (l/pred x #(m/validate ?x %))]))
   ([?x x x']
    (l/conde
     [(col!? ?x x)
      (l/== x' x)]
     [(l/nilo x)
      (l/== x' (mg/generate ?x))])))
+
+(defn var!? [x!? x]
+  (l/conde
+   [(l/lvaro x)]
+   [(x!? x)]))
 
 (defmethod accept ::default [_name schema _children _options]
   (fn col-schema!?
@@ -49,9 +58,11 @@
        (let [lvars (->lvars)]
          (l/all
           (l/== m (->ks-row lvars))
-          (l/conde
-           [(l/and* (map #(l/lvaro %) lvars))]
-           [(l/and* (map -apply* schemas lvars))]))))
+          (l/and* (map (fn [x!? x]
+                         (l/conde
+                          [(l/lvaro x)]
+                          [(x!? x)]))
+                       schemas lvars)))))
       ([m m']
        (let [m-vals (map #(% m) ks)
              lvars (->lvars)]

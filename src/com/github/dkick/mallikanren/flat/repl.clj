@@ -36,8 +36,10 @@
 (comment
   (let [q nil]
     (l/run 3 [q]
+      (name!? q)
+      (l/member1o [:first "Damien"] q)
       (name!? q)))
-  ;; => ([[:first _0] [:middle _1] [:last _2]])
+  ;; => ([[:first "Damien"] [:middle _0] [:last _1]])
   (let [q nil]
     (l/run 3 [q]
       (l/conde
@@ -47,8 +49,7 @@
       (name!? q)))
   ;; => ([[:first "Damien"] [:middle "Robert"] [:last "Kick"]]
   ;;     [[:first "Damien"] [:middle nil] [:last "Kick"]])
-  (let [name!? (spock/transform Name)
-        q nil]
+  (let [q nil]
     (l/run 100 [q]
       (name!? {:first "Damien", :middle "Robert", :last "Kick"} q)
       (name!? q)))
@@ -56,12 +57,16 @@
   (let [q nil]
     (l/run 10 [q]
       (person!? nil q)))
-  ;; => ([[:id #uuid "61bf0770-a14b-476d-9635-14f1432c9462"]
+  ;; => ([[:id #uuid "d8508462-6ab2-4675-8435-837e88cd4dce"]
   ;;      [:name
-  ;;       [[:first "NMBZ43"] [:middle nil] [:last "4dgq2u67t0XzE97"]]]]
-  ;;     [[:id #uuid "61bf0770-a14b-476d-9635-14f1432c9462"]
+  ;;       [[:first "qib5Vta00hj70L1mu0TBXJ5zz"]
+  ;;        [:middle "K806Bi7qt2tIKX77Y4Ij4r014nsP"]
+  ;;        [:last "J5tS8lOgzd"]]]]
+  ;;     [[:id #uuid "d8508462-6ab2-4675-8435-837e88cd4dce"]
   ;;      [:name
-  ;;       [[:first "NMBZ43"] [:middle nil] [:last "6PTKv0toA8WiFNboQ77"]]]])
+  ;;       [[:first "qib5Vta00hj70L1mu0TBXJ5zz"]
+  ;;        [:middle nil]
+  ;;        [:last "xhgt13y11Y4I"]]]])
   (let [q nil]
     (l/run 10 [q]
       (l/or* (->> [name!? person!? parents!? children!?]
