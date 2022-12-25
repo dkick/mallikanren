@@ -17,7 +17,7 @@
 (defmulti accept (fn [name _schema _children _options] name)
   :default ::default)
 
-(defn cell!?
+(defn val!?
   ([?x x]
    (l/conde
     [(l/pred ?x fn?)
@@ -26,7 +26,7 @@
      (l/pred x #(m/validate ?x %))]))
   ([?x x x']
    (l/conde
-    [(cell!? ?x x)
+    [(val!? ?x x)
      (l/== x' x)]
     [(l/nilo x)
      (l/== x' (mg/generate ?x))])))
@@ -37,9 +37,9 @@
    [(x!? x)]))
 
 (defmethod accept ::default [_name schema _children _options]
-  (fn cell-schema!?
-    ([x] (cell!? schema x))
-    ([x x'] (cell!? schema x x'))))
+  (fn val-schema!?
+    ([x] (val!? schema x))
+    ([x x'] (val!? schema x x'))))
 
 (defmethod accept ::m/val [_name _schema children _options]
   (first children))
@@ -52,19 +52,19 @@
         ks      (->> kvs (map (fn [[k _]] k)))
         schemas (->> kvs (map (fn [[_ v]] v)))
         ->lvars (fn [] (->> ks (map #(->> % symbol l/lvar))))
-        ->row   (fn [lvars] (->> (map vector ks lvars) (into [])))]
-    (fn row-schema!?
+        ->alist (fn [lvars] (->> (map vector ks lvars) (into [])))]
+    (fn map-schema!?
       ([m]
        (let [lvars (->lvars)]
          (l/all
-          (l/== m (->row lvars))
+          (l/== m (->alist lvars))
           (l/and* (map var!? schemas lvars)))))
       ([m m']
-       (let [m-vals (->> ks (map #(% m)))
+       (let [mvals (->> ks (map #(% m)))
              lvars (->lvars)]
          (l/all
-          (l/== m' (->row lvars))
-          (l/and* (map -apply* schemas m-vals lvars))))))))
+          (l/== m' (->alist lvars))
+          (l/and* (map -apply* schemas mvals lvars))))))))
 
 (defn -spock-schema-walker [schema _path children options]
   (let [p (merge (m/type-properties schema) (m/properties schema))]
