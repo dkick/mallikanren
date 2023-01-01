@@ -44,15 +44,23 @@
 (defmethod accept ::m/val [_name _schema children _options]
   (first children))
 
+#_
+(defn -->frgn-ks [children]
+  (->> children
+       (map (fn [[k p _]] [k p]))
+       (filter (fn [[_ p]] (:foreign-key p)))
+       (into {})))
+
 (defn -apply* [& args]
   (apply (first args) (rest args)))
 
 (defmethod accept :map [_name _schema children _options]
-  (let [kvs (->> children (map (fn [[k _ v]] [k v])))
-        ks      (->> kvs (map (fn [[k _]] k)))
-        schemas (->> kvs (map (fn [[_ v]] v)))
+  (let [ks      (->> children (map (fn [[k _ _]] k)))
+        schemas (->> children (map (fn [[_ _ v]] v)))
+        #_#_frgn-ks (->> children -->frgn-ks)
         ->lvars (fn [] (->> ks (map #(->> % symbol l/lvar))))
         ->alist (fn [lvars] (->> (map vector ks lvars) (into [])))]
+    #_(println frgn-ks)
     (fn map-schema!?
       ([m]
        (let [lvars (->lvars)]

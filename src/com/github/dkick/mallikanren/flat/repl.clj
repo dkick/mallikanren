@@ -9,31 +9,42 @@
    [:middle [:maybe :string]]
    [:last :string]])
 
-(def name!? (spock/transform Name))
+(def name!?
+  (->> Name spock/transform))
 
 (def Person
   [:map
    [:id :uuid]
    [:name Name]])
 
-(def person!? (spock/transform Person))
+(def person!?
+  (->> Person spock/transform))
 
+;; Using properties for foreign keys makes it easy to annotate the
+;; schema in a way that doesn't affect the Malli schema as a thing
+;; in/of itself but can provide the necessary info for the
+;; spock/transfrom ... but the referring type is redundant
 (def Parents
   [:map
-   [:child :uuid]
-   [:father :uuid]
-   [:mother :uuid]])
+   [:child {:foreign-key [Person :id]} :uuid]
+   [:father {:foreign-key [Person :id]} :uuid]
+   [:mother {:foreign-key [Person :id]} :uuid]])
 
-(def parents!? (spock/transform Parents))
+(def parents!?
+  (->> Parents spock/transform))
 
 (def Children
   [:map
-   [:parent :uuid]
-   [:child :uuid]])
+   [:parent {:foreign-key [Person :id]} :uuid]
+   [:child {:foreign-key [Person :id]} :uuid]])
 
-(def children!? (spock/transform Children))
+(def children!?
+  (->> Children spock/transform))
 
 (comment
+  (require '[malli.util :as mu])
+  (mu/get Person :id)
+  ;; => :uuid
   (let [q nil]
     (l/run 3 [q]
       (name!? q)
