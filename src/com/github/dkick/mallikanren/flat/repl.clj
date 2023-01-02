@@ -1,7 +1,9 @@
 (ns com.github.dkick.mallikanren.flat.repl
   (:require
    [clojure.core.logic :as l]
-   [com.github.dkick.mallikanren.flat.spock :as spock]))
+   [com.github.dkick.mallikanren.flat.spock :as spock]
+   [malli.generator :as mg]
+   [malli.util :as mu]))
 
 (def Name
   [:map
@@ -41,8 +43,20 @@
 (def children!?
   (->> Children spock/transform))
 
+(def Tables
+  [:or Children Name Parents Person])
+
 (comment
-  (require '[malli.util :as mu])
+  (mg/generate Tables)
+  ;; => {:child #uuid "9c5e1d76-55d4-400e-b6e4-2b303ea61215",
+  ;;     :father #uuid "59a7b664-dcba-43d6-a34e-dfd9c6fbe57c",
+  ;;     :mother #uuid "fd43b23d-d01b-47bb-99c1-601d7ca80232"}
+  ;; => {:first "kBCiL5",
+  ;;     :middle "cSmEkLe0ZW",
+  ;;     :last "9iKtYg9Y8Vofr01460r5e5HX"}
+  #_:comment)
+
+(comment
   (mu/get Person :id)
   ;; => :uuid
   (let [q nil]
