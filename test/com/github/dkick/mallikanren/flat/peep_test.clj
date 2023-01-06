@@ -97,6 +97,7 @@
 
 (comment
   (mu/get Person :id)
+  ;; => :uuid
   (let [q nil]
     (l/run 10 [q]
       (person!? nil q)))
