@@ -2,6 +2,7 @@
   (:refer-clojure :rename {name clj-name})
   (:require
    [clojure.core.logic :as l]
+   [clojure.pprint :refer [pprint]]
    [malli.core :as m]
    [malli.generator :as mg]))
 
@@ -73,6 +74,11 @@
          (l/all
           (l/== m' (->alist lvars))
           (l/and* (map -apply* schemas mvals lvars))))))))
+
+(defmethod accept :or [name schema children options]
+  (pprint {:name name, :schema schema, :children children
+           :options options})
+  schema)
 
 (defn -spock-schema-walker [schema _path children options]
   (let [p (merge (m/type-properties schema) (m/properties schema))]

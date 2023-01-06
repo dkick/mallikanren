@@ -1,8 +1,10 @@
-(ns com.github.dkick.mallikanren.flat.repl
+(ns com.github.dkick.mallikanren.flat.peep-test
   (:require
    [clojure.core.logic :as l]
    [com.github.dkick.mallikanren.flat.spock :as spock]
-   [malli.generator :as mg]
+   [com.github.dkick.mallikanren.util.logic :as lu]
+   [clojure.test :as t]
+   [encaje.core :refer [--]]
    [malli.util :as mu]))
 
 (def Name
@@ -43,44 +45,58 @@
 (def children!?
   (->> Children spock/transform))
 
-(def Tables
+(def Table
   [:or Children Name Parents Person])
 
-(comment
-  (mg/generate Tables)
-  ;; => {:child #uuid "9c5e1d76-55d4-400e-b6e4-2b303ea61215",
-  ;;     :father #uuid "59a7b664-dcba-43d6-a34e-dfd9c6fbe57c",
-  ;;     :mother #uuid "fd43b23d-d01b-47bb-99c1-601d7ca80232"}
-  ;; => {:first "kBCiL5",
-  ;;     :middle "cSmEkLe0ZW",
-  ;;     :last "9iKtYg9Y8Vofr01460r5e5HX"}
-  #_:comment)
+(def table!?
+  (->> Table spock/transform))
+
+(t/deftest name!?-test
+  (t/testing "lvar members"
+    (let [q nil
+          [x-name & x-rest]
+          (-- (l/run 3 [q]
+                (name!? q)
+                (l/conde
+                 [(lu/member1!? [:first "Damien"] q)]
+                 [(lu/member1!? [:first 13] q)])
+                (name!? q)))]
+      (t/is (nil? x-rest))
+      ;; ToDo: This would be a perfect place for core.match
+      (let [[[k0 v0] [k1 v1] [k2 v2]] x-name]
+        (t/is (= k0 :first))
+        (t/is (= v0 "Damien"))
+        (t/is (= k1 :middle))
+        (t/is (= (name v1) "_0"))
+        (t/is (= k2 :last))
+        (t/is (= (name v2) "_1")))))
+  (t/testing "literal members"
+    (let [q nil
+          [x & y]
+          (-- (l/run 100 [q]
+                (name!? {:first "Damien", :middle "Robert", :last "Kick"} q)
+                (name!? q)))]
+      (t/is (nil? y))
+      (t/is (= x [[:first "Damien"] [:middle "Robert"] [:last "Kick"]]))))
+  (t/testing "validate invalidate"
+    (let [q nil
+          [x y & z]
+          (-- (l/run 3 [q]
+                (l/conde
+                 [(l/== q [[:first "Damien"]
+                           [:middle "Robert"]
+                           [:last "Kick"]])]
+                 [(l/== q [[:first "Damien"]
+                           [:middle nil]
+                           [:last "Kick"]])]
+                 [(l/== q [[:nickname "D'amy"]])])
+                (name!? q)))]
+      (t/is (nil? z))
+      (t/is (= x [[:first "Damien"] [:middle "Robert"] [:last "Kick"]]))
+      (t/is (= y [[:first "Damien"] [:middle nil] [:last "Kick"]])))))
 
 (comment
   (mu/get Person :id)
-  ;; => :uuid
-  (let [q nil]
-    (l/run 3 [q]
-      (name!? q)
-      (l/conde
-       [(l/member1o [:first "Damien"] q)]
-       [(l/member1o [:first 13] q)])
-      (name!? q)))
-  ;; => ([[:first "Damien"] [:middle _0] [:last _1]])
-  (let [q nil]
-    (l/run 3 [q]
-      (l/conde
-       [(l/== q [[:first "Damien"] [:middle "Robert"] [:last "Kick"]])]
-       [(l/== q [[:first "Damien"] [:middle nil] [:last "Kick"]])]
-       [(l/== q [[:nickname "D'amy"]])])
-      (name!? q)))
-  ;; => ([[:first "Damien"] [:middle "Robert"] [:last "Kick"]]
-  ;;     [[:first "Damien"] [:middle nil] [:last "Kick"]])
-  (let [q nil]
-    (l/run 100 [q]
-      (name!? {:first "Damien", :middle "Robert", :last "Kick"} q)
-      (name!? q)))
-  ;; => ([[:first "Damien"] [:middle "Robert"] [:last "Kick"]])
   (let [q nil]
     (l/run 10 [q]
       (person!? nil q)))
