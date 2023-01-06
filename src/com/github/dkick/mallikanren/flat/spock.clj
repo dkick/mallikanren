@@ -23,6 +23,8 @@
    (l/conde
     [(l/pred ?x fn?)
      (l/pred x ?x)]
+    ;; ToDo: Add a way to try and convert to a schema; i.e. m/schema
+    ;; but catch exceptions?
     [(l/pred ?x m/schema?)
      (l/pred x #(m/validate ?x %))]))
   ([?x x x']
