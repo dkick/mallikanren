@@ -1,9 +1,9 @@
 (ns com.github.dkick.mallikanren.flat.peep-test
   (:require
    [clojure.core.logic :as l]
+   [clojure.test :as t]
    [com.github.dkick.mallikanren.flat.spock :as spock]
    [com.github.dkick.mallikanren.util.logic :as lu]
-   [clojure.test :as t]
    [encaje.core :refer [--]]
    [malli.util :as mu]))
 
@@ -74,7 +74,8 @@
     (let [q nil
           [x & y]
           (-- (l/run 100 [q]
-                (name!? {:first "Damien", :middle "Robert", :last "Kick"} q)
+                (let [q' {:first "Damien", :middle "Robert", :last "Kick"}]
+                  (name!? q' q))
                 (name!? q)))]
       (t/is (nil? y))
       (t/is (= x [[:first "Damien"] [:middle "Robert"] [:last "Kick"]]))))

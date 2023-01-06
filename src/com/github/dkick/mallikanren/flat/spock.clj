@@ -6,17 +6,13 @@
    [malli.core :as m]
    [malli.generator :as mg]))
 
-;;; Laregly based on malli.json-schema; sometimes copied without
-;;; really understanding, sometimes copied with maybe understanding,
-;;; sometimes copied with hopefully understanding. It is up to you to
-;;; discover which happened, when, and where <laughter type="evil"/>
-
-(defprotocol SpockSchema
-  (-accept [this children options]
-    "transforms schema to Spock Schema"))
-
-(defmulti accept (fn [name _schema _children _options] name)
-  :default ::default)
+(defn -schema? [x]
+  (try
+    (->> x m/schema m/schema?)
+    (catch Exception e
+      (case (->> e ex-data :type)
+        ::m/invalid-schema false
+        (throw e)))))
 
 (defn val!?
   ([?x x]
@@ -25,7 +21,7 @@
      (l/pred x ?x)]
     ;; ToDo: Add a way to try and convert to a schema; i.e. m/schema
     ;; but catch exceptions?
-    [(l/pred ?x m/schema?)
+    [(l/pred ?x -schema?)
      (l/pred x #(m/validate ?x %))]))
   ([?x x x']
    (l/conde
@@ -38,6 +34,18 @@
   (l/conde
    [(l/lvaro x)]
    [(x!? x)]))
+
+;;; Laregly based on malli.json-schema; sometimes copied without
+;;; really understanding, sometimes copied with maybe understanding,
+;;; sometimes copied with hopefully understanding. It is up to you to
+;;; discover which happened, when, and where <laughter type="evil"/>
+
+(defprotocol SpockSchema
+  (-accept [this children options]
+    "transforms schema to Spock Schema"))
+
+(defmulti accept (fn [name _schema _children _options] name)
+  :default ::default)
 
 (defmethod accept ::default [_name schema _children _options]
   (fn val-schema!?
