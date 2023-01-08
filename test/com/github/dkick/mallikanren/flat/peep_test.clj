@@ -138,11 +138,15 @@
   ;;     [[:child _0] [:father _1] [:mother _2]]
   ;;     [[:id _0] [:name [[:first _1] [:middle _2] [:last _3]]]])
   (let [q nil]
+    (l/run 3 [q]
+      (spock/val!? :uuid nil q)))
+  ;; => (#uuid "0fe43875-fe62-4fb6-8ceb-13a40e1c4454")
+  (let [q nil]
     (l/run 10 [q]
-      (table!? q)))
-  ;; => ([[:parent _0] [:child _1]]
-  ;;     [[:first _0] [:middle _1] [:last _2]]
-  ;;     [[:id _0] [:name _1]]
-  ;;     [[:child _0] [:father _1] [:mother _2]]
-  ;;     [[:id _0] [:name [[:first _1] [:middle _2] [:last _3]]]])
+      (table!? {:child #uuid "0fe43875-fe62-4fb6-8ceb-13a40e1c4454"} q)))
+  ;; => ([[:parent #uuid "5c065b19-728a-43f3-85ef-ce9c24d69c37"]
+  ;;      [:child #uuid "0fe43875-fe62-4fb6-8ceb-13a40e1c4454"]]
+  ;;     [[:child #uuid "0fe43875-fe62-4fb6-8ceb-13a40e1c4454"]
+  ;;      [:father #uuid "db6dc11c-ba1c-4ec1-abcb-b69221fa4a26"]
+  ;;      [:mother #uuid "ded1e1ca-b71a-4154-9a0e-aa93b34971d3"]])
   :comment)
