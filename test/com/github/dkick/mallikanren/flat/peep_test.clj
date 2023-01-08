@@ -4,7 +4,7 @@
    [clojure.test :as t]
    [com.github.dkick.mallikanren.flat.spock :as spock]
    [com.github.dkick.mallikanren.util.logic :as lu]
-   [encaje.core :refer [--]]
+   [encaje.core :refer [-- fx]]
    [malli.util :as mu]))
 
 (def Name
@@ -74,8 +74,8 @@
     (let [q nil
           [x & y]
           (-- (l/run 100 [q]
-                (let [q' {:first "Damien", :middle "Robert", :last "Kick"}]
-                  (name!? q' q))
+                (fx name!?
+                    {:first "Damien", :middle "Robert", :last "Kick"} q)
                 (name!? q)))]
       (t/is (nil? y))
       (t/is (= x [[:first "Damien"] [:middle "Robert"] [:last "Kick"]]))))
@@ -142,4 +142,9 @@
   (let [q nil]
     (l/run 10 [q]
       (table!? q)))
+  ;; => ([[:parent _0] [:child _1]]
+  ;;     [[:first _0] [:middle _1] [:last _2]]
+  ;;     [[:id _0] [:name _1]]
+  ;;     [[:child _0] [:father _1] [:mother _2]]
+  ;;     [[:id _0] [:name [[:first _1] [:middle _2] [:last _3]]]])
   :comment)

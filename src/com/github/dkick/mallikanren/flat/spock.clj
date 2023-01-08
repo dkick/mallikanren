@@ -93,7 +93,9 @@
 (defmethod accept :or [-name schema children options]
   (pprint {:name -name, :schema schema, :children children
            :options options})
-  schema)
+  (fn or-schema!?
+    ([m] (l/or* (map #(% m) children)))
+    ([m m'] (l/or* (map #(% m m') children)))))
 
 (defn -spock-schema-walker [schema _path children options]
   (let [p (merge (m/type-properties schema) (m/properties schema))]
