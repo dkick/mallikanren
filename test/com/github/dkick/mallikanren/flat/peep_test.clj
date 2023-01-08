@@ -98,6 +98,8 @@
                  [(l/== q [[:first "Damien"]
                            [:middle nil]
                            [:last "Kick"]])]
+                 [(l/== q [[:first "Robert"]
+                           [:last "Downey"]])]
                  [(l/== q [[:nickname "D'amy"]])])
                 (name!? q)))]
       (t/is (nil? z))
