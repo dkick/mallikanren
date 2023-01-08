@@ -17,3 +17,10 @@
               (l/== q "13")
               (spock/val!? :int q))]
       (t/is (= z ())))))
+
+(comment
+  (let [q nil]
+    (l/run 10 [q]
+      (spock/-subset!? #{:x} #{:x :y})
+      (l/== q true)))
+  :comment)

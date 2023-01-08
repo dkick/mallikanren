@@ -79,6 +79,14 @@
                 (name!? q)))]
       (t/is (nil? y))
       (t/is (= x [[:first "Damien"] [:middle "Robert"] [:last "Kick"]]))))
+  (t/testing "literal nonmembers"
+    (let [q nil
+          [& x]
+          (-- (l/run 100 [q]
+                (let [q' {:nickname "D'amy"}]
+                  (name!? q' q))
+                (name!? q)))]
+      (t/is (nil? x))))
   (t/testing "validate invalidate"
     (let [q nil
           [x y & z]
@@ -97,6 +105,16 @@
       (t/is (= y [[:first "Damien"] [:middle nil] [:last "Kick"]])))))
 
 (comment
+  (let [q nil]
+    (l/run 10 [q]
+      (let [q' {:first "D'amy"}]
+        (name!? q' q))))
+  ;; => ([[:first "09EDdEM977lZxk8AdX1E24F2N3F4"]
+  ;;      [:middle nil]
+  ;;      [:last "uAqWNmSIXd87zqR1a5i"]]
+  ;;     [[:first "09EDdEM977lZxk8AdX1E24F2N3F4"]
+  ;;      [:middle nil]
+  ;;      [:last "QtO4150Tp1Ms6jeRa"]])
   (mu/get Person :id)
   ;; => :uuid
   (let [q nil]
@@ -119,4 +137,7 @@
   ;;     [[:parent _0] [:child _1]]
   ;;     [[:child _0] [:father _1] [:mother _2]]
   ;;     [[:id _0] [:name [[:first _1] [:middle _2] [:last _3]]]])
+  (let [q nil]
+    (l/run 10 [q]
+      (table!? q)))
   :comment)

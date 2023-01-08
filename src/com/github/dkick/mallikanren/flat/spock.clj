@@ -3,6 +3,7 @@
   (:require
    [clojure.core.logic :as l]
    [clojure.pprint :refer [pprint]]
+   [clojure.set :as set]
    [malli.core :as m]
    [malli.generator :as mg]))
 
@@ -63,6 +64,11 @@
 (defn -apply* [& args]
   (apply (first args) (rest args)))
 
+(defn -subset!? [args ks]
+  (if (set/subset? args ks)
+    l/succeed
+    l/fail))
+
 (defmethod accept :map [_name _schema children _options]
   (let [ks      (->> children (map (fn [[k _ _]] k)))
         schemas (->> children (map (fn [[_ _ v]] v)))
@@ -80,11 +86,12 @@
        (let [mvals (->> ks (map #(% m)))
              lvars (->lvars)]
          (l/all
+          (-subset!? (->> m keys set) (->> ks set))
           (l/== m' (->alist lvars))
           (l/and* (map -apply* schemas mvals lvars))))))))
 
-(defmethod accept :or [name schema children options]
-  (pprint {:name name, :schema schema, :children children
+(defmethod accept :or [-name schema children options]
+  (pprint {:name -name, :schema schema, :children children
            :options options})
   schema)
 
