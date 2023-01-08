@@ -109,14 +109,12 @@
 (comment
   (let [q nil]
     (l/run 10 [q]
-      (let [q' {:first "D'amy"}]
+      (let [q' {:last "Kick"}]
         (name!? q' q))))
-  ;; => ([[:first "09EDdEM977lZxk8AdX1E24F2N3F4"]
-  ;;      [:middle nil]
-  ;;      [:last "uAqWNmSIXd87zqR1a5i"]]
-  ;;     [[:first "09EDdEM977lZxk8AdX1E24F2N3F4"]
-  ;;      [:middle nil]
-  ;;      [:last "QtO4150Tp1Ms6jeRa"]])
+  ;; => ([[:first "d882EJ7a"]
+  ;;      [:middle "dgM5h02XCLIxe94Sc3NEfc8M4rv5aK"]
+  ;;      [:last "Kick"]]
+  ;;     [[:first "d882EJ7a"] [:middle nil] [:last "Kick"]])
   (mu/get Person :id)
   ;; => :uuid
   (let [q nil]
