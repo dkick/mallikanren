@@ -90,9 +90,7 @@
           (l/== m' (->alist lvars))
           (l/and* (map -apply* schemas mvals lvars))))))))
 
-(defmethod accept :or [-name schema children options]
-  (pprint {:name -name, :schema schema, :children children
-           :options options})
+(defmethod accept :or [_name _schema children _options]
   (fn or-schema!?
     ([m] (l/or* (map #(% m) children)))
     ([m m'] (l/or* (map #(% m m') children)))))
