@@ -102,8 +102,8 @@
                  [(l/== q [[:nickname "D'amy"]])])
                 (name!? q)))]
       (t/is (nil? z))
-      (t/is (= x [[:first "Damien"] [:middle "Robert"] [:last "Kick"]]))
-      (t/is (= y [[:first "Damien"] [:middle nil] [:last "Kick"]])))))
+      (t/is (= x (fml "Damien" "Robert" "Kick")))
+      (t/is (= y (fml "Damien" nil "Kick"))))))
 
 (comment
   (let [q nil]
