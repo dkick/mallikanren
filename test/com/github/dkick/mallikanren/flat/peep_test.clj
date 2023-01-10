@@ -51,6 +51,9 @@
 (def table!?
   (->> Table spock/transform))
 
+(defn fml [f m l]
+  [[:first f] [:middle m] [:last l]])
+
 (t/deftest name!?-test
   (t/testing "lvar members"
     (let [q nil
@@ -78,11 +81,11 @@
                     {:first "Damien", :middle "Robert", :last "Kick"} q)
                 (name!? q)))]
       (t/is (nil? y))
-      (t/is (= x [[:first "Damien"] [:middle "Robert"] [:last "Kick"]]))))
+      (t/is (= x (fml "Damien" "Robert" "Kick")))))
   (t/testing "literal nonmembers"
     (let [q nil
           [& x]
-          (-- (l/run 100 [q]
+          (-- (l/run 1 [q]
                 (let [q' {:nickname "D'amy"}]
                   (name!? q' q))
                 (name!? q)))]
@@ -92,12 +95,8 @@
           [x y & z]
           (-- (l/run 3 [q]
                 (l/conde
-                 [(l/== q [[:first "Damien"]
-                           [:middle "Robert"]
-                           [:last "Kick"]])]
-                 [(l/== q [[:first "Damien"]
-                           [:middle nil]
-                           [:last "Kick"]])]
+                 [(l/== q (fml "Damien" "Robert" "Kick"))]
+                 [(l/== q (fml "Damien" nil "Kick"))]
                  [(l/== q [[:first "Robert"]
                            [:last "Downey"]])]
                  [(l/== q [[:nickname "D'amy"]])])

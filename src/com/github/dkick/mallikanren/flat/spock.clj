@@ -2,7 +2,6 @@
   (:refer-clojure :rename {name clj-name})
   (:require
    [clojure.core.logic :as l]
-   [clojure.pprint :refer [pprint]]
    [clojure.set :as set]
    [malli.core :as m]
    [malli.generator :as mg]))
@@ -69,6 +68,8 @@
     l/succeed
     l/fail))
 
+;; ToDo: Add an option for handling this schema for handling an
+;; individual map vs a sequence of maps (representing a DB)
 (defmethod accept :map [_name _schema children _options]
   (let [ks      (->> children (map (fn [[k _ _]] k)))
         schemas (->> children (map (fn [[_ _ v]] v)))
