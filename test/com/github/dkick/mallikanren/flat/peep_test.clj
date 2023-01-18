@@ -97,8 +97,7 @@
                 (l/conde
                  [(l/== q (fml "Damien" "Robert" "Kick"))]
                  [(l/== q (fml "Damien" nil "Kick"))]
-                 [(l/== q [[:first "Robert"]
-                           [:last "Downey"]])]
+                 [(l/== q [[:first "Robert"] [:last "Downey"]])]
                  [(l/== q [[:nickname "D'amy"]])])
                 (name!? q)))]
       (t/is (nil? z))

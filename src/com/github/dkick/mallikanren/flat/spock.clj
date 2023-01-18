@@ -70,26 +70,32 @@
 
 ;; ToDo: Add an option for handling this schema for handling an
 ;; individual map vs a sequence of maps (representing a DB)
-(defmethod accept :map [_name _schema children _options]
+(defmethod accept :map [_name schema children options]
   (let [ks      (->> children (map (fn [[k _ _]] k)))
         schemas (->> children (map (fn [[_ _ v]] v)))
         #_#_frgn-ks (->> children -->frgn-ks)
         ->lvars (fn [] (->> ks (map #(->> % symbol l/lvar))))
         ->alist (fn [lvars] (->> (map vector ks lvars) (into [])))]
     #_(println frgn-ks)
-    (fn map-schema!?
-      ([m]
-       (let [lvars (->lvars)]
-         (l/all
-          (l/== m (->alist lvars))
-          (l/and* (map var!? schemas lvars)))))
-      ([m m']
-       (let [mvals (->> ks (map #(% m)))
-             lvars (->lvars)]
-         (l/all
-          (-subset!? (->> m keys set) (->> ks set))
-          (l/== m' (->alist lvars))
-          (l/and* (map -apply* schemas mvals lvars))))))))
+    (if (:seq options)
+      ;; ToDo: Is the seq xs a valid colection of maps?
+      (fn seq-schema!?
+        ([_xs] schema)
+        ([_m _xs] schema))
+      ;; Is the alist [m] or [_ m'] a valid map?
+      (fn map-schema!?
+        ([m]
+         (let [lvars (->lvars)]
+           (l/all
+            (l/== m (->alist lvars))
+            (l/and* (map var!? schemas lvars)))))
+        ([m m']
+         (let [mvals (->> ks (map #(% m)))
+               lvars (->lvars)]
+           (l/all
+            (-subset!? (->> m keys set) (->> ks set))
+            (l/== m' (->alist lvars))
+            (l/and* (map -apply* schemas mvals lvars)))))))))
 
 (defmethod accept :or [_name _schema children _options]
   (fn or-schema!?
