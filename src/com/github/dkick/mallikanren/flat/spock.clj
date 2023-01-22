@@ -122,5 +122,12 @@
          options (merge options {::m/walk-entry-vals true
                                  ::definitions definitions
                                  ::transfrom -transform})]
-     (cond-> (-transform ?schema options)
-       (seq @definitions) (assoc :definitions @definitions)))))
+     (-transform ?schema options)
+     ;; The code from json-schema (below) does not work for us in this
+     ;; case, as we're not returning some kind of a map into which we
+     ;; can assoc extra :definitions. Given that fact, is it even
+     ;; worth keeping definitions? Even in the json-schema case, I
+     ;; couldn't find any use of the :definitions option. We'll keep
+     ;; it around for now, just to look at; to ponder ...
+     #_(cond-> (-transform ?schema options)
+         (seq @definitions) (assoc :definitions @definitions)))))

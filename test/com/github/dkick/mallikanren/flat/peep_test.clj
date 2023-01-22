@@ -67,12 +67,9 @@
       (t/is (nil? x-rest))
       ;; ToDo: This would be a perfect place for core.match
       (let [[[k0 v0] [k1 v1] [k2 v2]] x-name]
-        (t/is (= k0 :first))
-        (t/is (= v0 "Damien"))
-        (t/is (= k1 :middle))
-        (t/is (= (name v1) "_0"))
-        (t/is (= k2 :last))
-        (t/is (= (name v2) "_1")))))
+        (t/is (= k0 :first))  (t/is (= v0 "Damien"))
+        (t/is (= k1 :middle)) (t/is (= v1 '_0))
+        (t/is (= k2 :last))   (t/is (= v2 '_1)))))
   (t/testing "literal members"
     (let [q nil
           [x & y]
